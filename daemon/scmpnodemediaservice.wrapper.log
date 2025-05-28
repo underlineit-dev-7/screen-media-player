@@ -1,2 +1,0 @@
-2025-05-28 11:43:35 - Starting C:\nvm4w\nodejs\node.exe  --harmony C:\Users\balas_zq7sif0\OneDrive\Desktop\projects\screen-media-player\node_modules\node-windows\lib\wrapper.js --file C:\Users\balas_zq7sif0\OneDrive\Desktop\projects\screen-media-player\service.js --scriptoptions= --log "SCMP Node Media Service wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
-2025-05-28 11:43:35 - Started 36932

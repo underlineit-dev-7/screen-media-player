@@ -1,34 +1,3 @@
-// let container = document.getElementById('player-container');
-
-// async function fetchPlaylist() {
-//   const res = await fetch('/api/playlist');
-//   return res.json();
-// }
-
-// async function playItems(items) {
-//   for (const item of items) {
-//     container.innerHTML = ''; // Clear previous
-//     if (item.type === 'video') {
-//       const video = document.createElement('video');
-//       video.src = item.file;
-//       video.autoplay = true;
-//       video.controls = false;
-//       video.onended = () => playItems(items); // Loop
-//       container.appendChild(video);
-//       await video.play();
-//       return;
-//     } else if (item.type === 'image') {
-//       const img = document.createElement('img');
-//       img.src = item.file;
-//       container.appendChild(img);
-//       await new Promise(r => setTimeout(r, (item.duration || 10) * 1000));
-//     }
-//   }
-//   playItems(items); // Loop again
-// }
-
-// fetchPlaylist().then(playItems).catch(console.error);
-
 let container = document.getElementById("player-container");
 
 async function fetchPlaylist() {
@@ -45,6 +14,9 @@ function playItemsSequentially(items, index = 0) {
 
   if (item.type === "video") {
     const video = document.createElement("video");
+    video.muted = true; // 🔒 Needed for autoplay in Edge
+    video.autoplay = true; // Enables autoplay
+    video.playsInline = true; // iOS/Edge compatibility
     video.src = item.file;
     video.autoplay = true;
     video.controls = false;

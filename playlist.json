@@ -1,5 +1,20 @@
 [
-  { "type": "video", "file": "/media/sample1.mp4" },
-  { "type": "image", "file": "/media/banner1.jpg", "duration": 10 },
-  { "type": "video", "file": "/media/sample2.mp4" }
+  {
+    "id": 1,
+    "title": "banner1.jpg",
+    "src": "https://raw.githubusercontent.com/underlineit-dev-7/screen-media-player/main/media/banner1.jpg",
+    "type": "video/mp4"
+  },
+  {
+    "id": 2,
+    "title": "sample1.mp4",
+    "src": "https://raw.githubusercontent.com/underlineit-dev-7/screen-media-player/main/media/sample1.mp4",
+    "type": "video/mp4"
+  },
+  {
+    "id": 3,
+    "title": "sample2.mp4",
+    "src": "https://raw.githubusercontent.com/underlineit-dev-7/screen-media-player/main/media/sample2.mp4",
+    "type": "video/mp4"
+  }
 ]
