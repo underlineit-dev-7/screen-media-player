@@ -1,0 +1,5 @@
+[
+  { "type": "video", "file": "/media/sample1.mp4" },
+  { "type": "image", "file": "/media/banner1.jpg", "duration": 10 },
+  { "type": "video", "file": "/media/sample2.mp4" }
+]
