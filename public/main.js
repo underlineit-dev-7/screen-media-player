@@ -5,33 +5,22 @@ async function fetchPlaylist() {
   return res.json();
 }
 
-function playItemsSequentially(items, index = 0) {
-  if (items.length === 0) return;
-
-  const item = items[index % items.length]; // Loop
-
+function playItem(item) {
   container.innerHTML = ""; // Clear previous content
 
   if (item.type === "video") {
     const video = document.createElement("video");
-    video.muted = true; // 🔒 Needed for autoplay in Edge
-    video.autoplay = true; // Enables autoplay
-    video.playsInline = true; // iOS/Edge compatibility
-    video.src = item.file;
+    video.muted = true;
     video.autoplay = true;
+    video.playsInline = true;
+    video.src = item.file;
     video.controls = false;
     video.style.width = "100vw";
     video.style.height = "100vh";
     container.appendChild(video);
 
-    video.onended = () => {
-      playItemsSequentially(items, index + 1);
-    };
-
-    video.onerror = () => {
-      console.error("Failed to play video:", item.file);
-      playItemsSequentially(items, index + 1); // Skip broken item
-    };
+    video.onended = () => startPlayback(); // Replay logic
+    video.onerror = () => startPlayback(); // Skip broken
   } else if (item.type === "image") {
     const img = document.createElement("img");
     img.src = item.file;
@@ -40,23 +29,39 @@ function playItemsSequentially(items, index = 0) {
     container.appendChild(img);
 
     const duration = (item.duration || 10) * 1000;
-    setTimeout(() => {
-      playItemsSequentially(items, index + 1);
-    }, duration);
+    setTimeout(() => startPlayback(), duration);
   } else {
     console.warn("Unknown item type:", item);
-    playItemsSequentially(items, index + 1);
+    startPlayback(); // Skip unknown
   }
 }
 
-fetchPlaylist()
-  .then((playlist) => {
-    if (playlist && playlist.length > 0) {
-      playItemsSequentially(playlist);
-    } else {
-      console.error("Empty playlist");
-    }
-  })
-  .catch((err) => {
-    console.error("Error loading playlist:", err);
-  });
+function startPlayback() {
+  fetchPlaylist()
+    .then((playlist) => {
+      if (!playlist || playlist.length === 0) {
+        console.error("Empty playlist");
+        return;
+      }
+
+      const now = moment().startOf("minute");
+
+      const match = playlist.find((item) => {
+        return item.playAt && moment(item.playAt).startOf("minute").isSame(now);
+      });
+
+      if (match) {
+        console.log("Playing scheduled item:", match.title);
+        playItem(match);
+      } else {
+        const randomItem = playlist[Math.floor(Math.random() * playlist.length)];
+        console.log("No match. Playing random item:", randomItem.title);
+        playItem(randomItem);
+      }
+    })
+    .catch((err) => {
+      console.error("Error loading playlist:", err);
+    });
+}
+
+startPlayback();
