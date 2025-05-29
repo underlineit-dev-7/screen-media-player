@@ -2,26 +2,29 @@
   {
     "id": 1,
     "title": "banner1.jpg",
-    "file": "https://raw.githubusercontent.com/underlineit-dev-7/screen-media-player/main/media/banner1.jpg",
+    "file": "/media/banner1.jpg",
     "type": "image",
-    "playAt": "2025-05-28T17:19:00"
+    "playAt": "2025-05-29T09:19:00.489Z"
   },
   {
     "id": 2,
     "title": "premium_photo-1664472757995-3260cd26e477.jpeg",
-    "file": "https://raw.githubusercontent.com/underlineit-dev-7/screen-media-player/main/media/premium_photo-1664472757995-3260cd26e477.jpeg",
-    "type": "image"
+    "file": "/media/premium_photo-1664472757995-3260cd26e477.jpeg",
+    "type": "image",
+    "playAt": "2025-05-29T09:19:00.489Z"
   },
   {
     "id": 3,
     "title": "sample1.mp4",
-    "file": "https://raw.githubusercontent.com/underlineit-dev-7/screen-media-player/main/media/sample1.mp4",
-    "type": "video"
+    "file": "/media/sample1.mp4",
+    "type": "video",
+    "playAt": "2025-05-29T09:19:00.489Z"
   },
   {
     "id": 4,
     "title": "sample2.mp4",
-    "file": "https://raw.githubusercontent.com/underlineit-dev-7/screen-media-player/main/media/sample2.mp4",
-    "type": "video"
+    "file": "/media/sample2.mp4",
+    "type": "video",
+    "playAt": "2025-05-29T09:19:00.489Z"
   }
 ]

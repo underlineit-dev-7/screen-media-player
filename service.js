@@ -42,6 +42,66 @@ async function fetchMediaFilesFromGitHub() {
   }
 }
 
+async function downloadFile(url, dest) {
+  const writer = fs.createWriteStream(dest);
+  const response = await axios({
+    url,
+    method: "GET",
+    responseType: "stream",
+  });
+
+  response.data.pipe(writer);
+
+  return new Promise((resolve, reject) => {
+    writer.on("finish", resolve);
+    writer.on("error", reject);
+  });
+}
+
+async function syncMediaFiles() {
+  const files = await fetchMediaFilesFromGitHub();
+
+  if (files.length === 0) {
+    console.log("[SYNC] No media files found on GitHub.");
+    return;
+  }
+
+  // Make sure media directory exists
+  if (!fs.existsSync(MEDIA_DIR)) {
+    fs.mkdirSync(MEDIA_DIR);
+  }
+
+  // Get current local files
+  const localFiles = fs.existsSync(MEDIA_DIR) ? fs.readdirSync(MEDIA_DIR) : [];
+
+  // Files from GitHub
+  const githubFileNames = files.map((f) => f.name);
+
+  // Download new or updated files from GitHub
+  for (const file of files) {
+    const localPath = path.join(MEDIA_DIR, file.name);
+    // Download if file does not exist locally
+    if (!localFiles.includes(file.name)) {
+      console.log(`[SYNC] Downloading new file: ${file.name}`);
+      await downloadFile(file.url, localPath);
+    }
+  }
+
+  // Delete unused local files (those not in GitHub list)
+  for (const localFile of localFiles) {
+    if (!githubFileNames.includes(localFile)) {
+      const filePath = path.join(MEDIA_DIR, localFile);
+      fs.unlinkSync(filePath);
+      console.log(`[SYNC] Deleted unused file: ${localFile}`);
+    }
+  }
+
+  // Build and save updated playlist
+  const playlist = buildPlaylist(files);
+  fs.writeFileSync(PLAYLIST_PATH, JSON.stringify(playlist, null, 2));
+  console.log("[SYNC] Playlist updated and saved.");
+}
+
 function buildPlaylist(files) {
   const now = moment(); // System timezone
 
@@ -53,7 +113,7 @@ function buildPlaylist(files) {
       return {
         id: index + 1,
         title: file.name,
-        file: file.url,
+        file: `/media/${file.name}`, // Serve from local media folder
         type,
         playAt: playAt.toISOString(),
       };
@@ -61,34 +121,25 @@ function buildPlaylist(files) {
     .filter((item) => moment(item.playAt).isSameOrBefore(now));
 }
 
-app.get("/api/playlist", async (req, res) => {
+app.get("/api/playlist", (req, res) => {
   if (fs.existsSync(PLAYLIST_PATH)) {
     const data = fs.readFileSync(PLAYLIST_PATH, "utf-8");
     return res.json(JSON.parse(data));
   }
-
-  const files = await fetchMediaFilesFromGitHub();
-  if (files.length === 0) {
-    return res.status(404).json({ error: "No media files found" });
-  }
-
-  const playlist = buildPlaylist(files);
-  res.json(playlist);
+  res.status(404).json({ error: "Playlist not found" });
 });
 
-cron.schedule("0 * * * *", async () => {
-  console.log("[CRON] Checking for playlist updates from GitHub...");
-  const files = await fetchMediaFilesFromGitHub();
-  console.log(`[CRON] Found ${files.length} media files on GitHub.`);
-  if (files.length > 0) {
-    const playlist = buildPlaylist(files);
-    fs.writeFileSync(PLAYLIST_PATH, JSON.stringify(playlist, null, 2));
-    console.log("[UPDATE] Playlist updated and saved to local file.");
-  } else {
-    console.log("[UPDATE] No media files found to update playlist.");
-  }
+// Schedule sync every hour
+cron.schedule("* * * * *", async () => {
+  console.log("[CRON] Syncing media files with GitHub...");
+  await syncMediaFiles();
 });
 
-app.listen(PORT, () => {
-  console.log(`SCMP Media Player running at http://localhost:${PORT}`);
-});
+// Initial sync on startup
+(async () => {
+  await syncMediaFiles();
+
+  app.listen(PORT, () => {
+    console.log(`SCMP Media Player running at http://localhost:${PORT}`);
+  });
+})();
